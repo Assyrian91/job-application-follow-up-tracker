@@ -1,0 +1,951 @@
+{
+  "name": "Job Application Follow-Up",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -640,
+        -1552
+      ],
+      "id": "8141eae5-ceda-4f45-90bc-1dd5dbd0d6b2",
+      "name": "Telegram Trigger",
+      "webhookId": "2f56aee2-7ab9-4640-9ed1-d1fe07844915",
+      "credentials": {
+        "telegramApi": {
+          "id": "Uq7C8DbhIOnC97UI",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $input.first().json.message.text;\nconst chatId = $input.first().json.message.chat.id;\nconst firstName = $input.first().json.message.from.first_name;\n\nconst withoutPrefix = text.replace(/^Applied:\\s*/i, '').trim();\nconst parts = withoutPrefix.split(' - ').map(s => s.trim());\n\nreturn [{\n  json: {\n    id: Date.now().toString(),\n    company: parts[0],\n    role: parts[1],\n    contactEmail: parts[2] || '',\n    applicantName: firstName,\n    appliedDate: new Date().toLocaleDateString('en-GB'),\n    status: 'Applied',\n    chatId\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -272,
+        -1552
+      ],
+      "id": "61042eda-b221-4892-afa3-66250123454f",
+      "name": "Parse Application"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Parse Application').item.json.chatId }}",
+        "text": "=✅ Logged: {{ $json.company }} — {{ $json.role }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        560,
+        -1552
+      ],
+      "id": "d474405b-dd26-4820-9251-53021ebfd0f1",
+      "name": "Send a text message",
+      "webhookId": "4159ba19-746c-4e60-88af-5f64a30a127b",
+      "credentials": {
+        "telegramApi": {
+          "id": "Uq7C8DbhIOnC97UI",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1N-qh0VwGsxDrR6R-fheg-n-n9xNGcIg0Jz0Sx9Y66VU",
+          "mode": "list",
+          "cachedResultName": "Job Applications",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1N-qh0VwGsxDrR6R-fheg-n-n9xNGcIg0Jz0Sx9Y66VU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1N-qh0VwGsxDrR6R-fheg-n-n9xNGcIg0Jz0Sx9Y66VU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Company": "={{ $json.company }}",
+            "Role": "={{ $json.role }}",
+            "AppliedDate": "={{ $json.appliedDate }}",
+            "Status": "={{ $json.status}}",
+            "ID": "={{ $json.id }}",
+            "ContactEmail": "={{ $json.contactEmail }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Role",
+              "displayName": "Role",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AppliedDate",
+              "displayName": "AppliedDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ContactEmail",
+              "displayName": "ContactEmail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        64,
+        -1552
+      ],
+      "id": "6fc1c7cf-aeb5-460c-a9f2-70d3930502ee",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aa7platy65DSRUoD",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 7,
+        "unit": "days"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        800,
+        -1552
+      ],
+      "id": "20935524-7043-4b08-985f-f291a5812290",
+      "name": "Wait",
+      "webhookId": "c9ac9313-29c6-4fc8-bc05-183a4d34e6b1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7bdd5a16-d769-4afb-989d-60479ef86f83",
+              "leftValue": "={{ $json.Status }}",
+              "rightValue": "Applied",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        16,
+        -1296
+      ],
+      "id": "424a57b1-f405-4461-966e-4459cd710724",
+      "name": "Still Applied?"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1N-qh0VwGsxDrR6R-fheg-n-n9xNGcIg0Jz0Sx9Y66VU",
+          "mode": "list",
+          "cachedResultName": "Job Applications",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1N-qh0VwGsxDrR6R-fheg-n-n9xNGcIg0Jz0Sx9Y66VU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1N-qh0VwGsxDrR6R-fheg-n-n9xNGcIg0Jz0Sx9Y66VU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "Followed Up",
+            "ID": "={{ $('Recheck Status').item.json.ID }}"
+          },
+          "matchingColumns": [
+            "ID"
+          ],
+          "schema": [
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Role",
+              "displayName": "Role",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AppliedDate",
+              "displayName": "AppliedDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        336,
+        -1328
+      ],
+      "id": "0f402ca7-5bce-4aff-a361-690e31c7374e",
+      "name": "Update Status",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aa7platy65DSRUoD",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1N-qh0VwGsxDrR6R-fheg-n-n9xNGcIg0Jz0Sx9Y66VU",
+          "mode": "list",
+          "cachedResultName": "Job Applications",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1N-qh0VwGsxDrR6R-fheg-n-n9xNGcIg0Jz0Sx9Y66VU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1N-qh0VwGsxDrR6R-fheg-n-n9xNGcIg0Jz0Sx9Y66VU/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "ID",
+              "lookupValue": "={{ $('Parse Application').item.json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -688,
+        -1296
+      ],
+      "id": "42beef9f-d004-45d3-abbd-3de7ca789c85",
+      "name": "Recheck Status",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aa7platy65DSRUoD",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 7,
+        "unit": "days"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        576,
+        -1344
+      ],
+      "id": "ced0dca3-c423-4c1f-b842-3551209e26df",
+      "name": "Wait2",
+      "webhookId": "12fb8f46-e090-45fd-8a2f-30b3e9734a46"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1N-qh0VwGsxDrR6R-fheg-n-n9xNGcIg0Jz0Sx9Y66VU",
+          "mode": "list",
+          "cachedResultName": "Job Applications",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1N-qh0VwGsxDrR6R-fheg-n-n9xNGcIg0Jz0Sx9Y66VU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1N-qh0VwGsxDrR6R-fheg-n-n9xNGcIg0Jz0Sx9Y66VU/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "ID",
+              "lookupValue": "={{ $('Parse Application').item.json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        816,
+        -1328
+      ],
+      "id": "1a93b517-248a-40de-b75b-ab1d9f14c769",
+      "name": "Recheck Status 2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aa7platy65DSRUoD",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "04235314-e39d-4f00-9c88-705d0d48ab46",
+              "leftValue": "={{ $json.Status\n}}",
+              "rightValue": "Followed Up",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        864,
+        -960
+      ],
+      "id": "74286821-388d-49df-a92a-57ef48913e00",
+      "name": "Still Followed Up?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1807c288-136f-4be9-a3ed-e9000ebaa455",
+              "leftValue": "={{ $('Parse Application').item.json.contactEmail }}",
+              "rightValue": "is not empty",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -816,
+        -1104
+      ],
+      "id": "7863ec6b-2b07-4aae-aa68-523a29b2400a",
+      "name": "Has Contact Email?"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-flash-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-flash-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Write a short, polite, professional follow-up email for a job application.\n\n   Applicant name: {{ $('Parse Application').item.json.applicantName }}\n   Role: {{ $('Parse Application').item.json.role }}\n   Company: {{ $('Parse Application').item.json.company }}\n   Days since applying: {{ $json.daysSinceApplying }}\n\n   Return ONLY valid JSON in this exact format, no markdown fences, no extra text:\n   {\"subject\": \"...\", \"body\": \"...\"}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        -544,
+        -768
+      ],
+      "id": "2ebbc446-57f8-44e5-8720-838a3c930fb3",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "BSxEJLic4IemTDgL",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.content.parts[0].text;\nconst cleaned = raw.replace(/```json|```/g, '').trim();\nconst result = JSON.parse(cleaned);\n\nreturn [{\n  json: {\n    subject: result.subject,\n    body: result.body,\n    toEmail: $('Parse Application').item.json.contactEmail\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -16,
+        -832
+      ],
+      "id": "a64eb6df-ce27-4b14-9900-3623130b91ec",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.body }}",
+        "options": {
+          "sendTo": "={{ $json.toEmail }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -16,
+        -1040
+      ],
+      "id": "f0a8f5a6-c108-4741-8c62-cc55b695340b",
+      "name": "Create a draft",
+      "webhookId": "82169831-30eb-4c03-9ffd-a517e2e17aba",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HoSIazfFsvreWOKa",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const appliedTimestamp = parseInt($('Parse Application').item.json.id);\nconst daysSinceApplying = Math.floor((Date.now() - appliedTimestamp) / (1000 * 60 * 60 * 24));\n\nreturn [{\n  json: {\n    ...$json,\n    daysSinceApplying\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -800,
+        -752
+      ],
+      "id": "9c19582d-9d5b-4de3-9e7f-c7dacae4b8ec",
+      "name": "Calc Days Elapsed"
+    },
+    {
+      "parameters": {
+        "chatId": "761688002",
+        "text": "=📁 No response from {{ $('Parse Application').item.json.company }} for {{ $('Parse Application').item.json.role }} after 2 follow-ups — marking it stale. Might be worth letting this one go.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        352,
+        -1104
+      ],
+      "id": "c0b892a8-e544-4de0-a4c8-58411db41175",
+      "name": "Notify Stale",
+      "webhookId": "692a1dea-9fe9-47ca-8257-a07c693525d9",
+      "credentials": {
+        "telegramApi": {
+          "id": "Uq7C8DbhIOnC97UI",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1N-qh0VwGsxDrR6R-fheg-n-n9xNGcIg0Jz0Sx9Y66VU",
+          "mode": "list",
+          "cachedResultName": "Job Applications",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1N-qh0VwGsxDrR6R-fheg-n-n9xNGcIg0Jz0Sx9Y66VU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1N-qh0VwGsxDrR6R-fheg-n-n9xNGcIg0Jz0Sx9Y66VU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID": "Stale"
+          },
+          "matchingColumns": [
+            "ID"
+          ],
+          "schema": [
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Role",
+              "displayName": "Role",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AppliedDate",
+              "displayName": "AppliedDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ContactEmail",
+              "displayName": "ContactEmail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        384,
+        -784
+      ],
+      "id": "aec7d670-0361-4b35-8d2a-0bd2a9a99471",
+      "name": "Mark Stale",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aa7platy65DSRUoD",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Parse Application').item.json.chatId }}",
+        "text": "=📧 Draft ready for {{ $('Parse Application').item.json.company }} — check Gmail drafts before sending.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -464,
+        -1040
+      ],
+      "id": "5355e801-f1ae-45d9-b35c-4e10b6a90934",
+      "name": "notify a draft is ready",
+      "webhookId": "9b95c5f0-f9f9-4511-9f0f-2529c65aaece",
+      "credentials": {
+        "telegramApi": {
+          "id": "Uq7C8DbhIOnC97UI",
+          "name": "Telegram account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse Application",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Application": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Recheck Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Still Applied?": {
+      "main": [
+        [
+          {
+            "node": "Has Contact Email?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Status": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recheck Status": {
+      "main": [
+        [
+          {
+            "node": "Still Applied?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Recheck Status 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recheck Status 2": {
+      "main": [
+        [
+          {
+            "node": "Still Followed Up?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Still Followed Up?": {
+      "main": [
+        [
+          {
+            "node": "Mark Stale",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Contact Email?": {
+      "main": [
+        [
+          {
+            "node": "Calc Days Elapsed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a draft": {
+      "main": [
+        [
+          {
+            "node": "notify a draft is ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calc Days Elapsed": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Stale": {
+      "main": [
+        []
+      ]
+    },
+    "Mark Stale": {
+      "main": [
+        [
+          {
+            "node": "Notify Stale",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "notify a draft is ready": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "9c5379c0-3f6e-46ff-afc8-fd987278a82c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4882ae57fae7f5198ca4a60b64d52e13372c8da31b44d4c64833b5b89f9efda5"
+  },
+  "nodeGroups": [],
+  "id": "vbsUZxFVZ1wnlqh9",
+  "tags": [
+    {
+      "updatedAt": "2026-06-24T09:01:36.583Z",
+      "createdAt": "2026-06-24T09:01:36.583Z",
+      "id": "iqfTAcaqWZv4qG4d",
+      "name": "By Khoshaba Assyrian"
+    }
+  ]
+}
