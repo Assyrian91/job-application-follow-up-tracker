@@ -1,5 +1,9 @@
 # Job Application Follow-Up Tracker
 
+![n8n](https://img.shields.io/badge/n8n-Workflow_Automation-EA4B71?style=for-the-badge&logo=n8n&logoColor=white)
+![Gemini](https://img.shields.io/badge/Google_Gemini-4285F4?style=for-the-badge&logo=googlegemini&logoColor=white)
+![Gmail](https://img.shields.io/badge/Gmail_API-EA4335?style=for-the-badge&logo=gmail&logoColor=white)
+
 An automated job search assistant that logs applications, waits and re-checks their status over time, nudges you to follow up when nothing's changed, drafts a follow-up email when there's a contact to reach, and quietly retires applications that have genuinely gone cold — all without manual tracking in a spreadsheet.
 
 ## Problem it solves
@@ -65,7 +69,7 @@ This project surfaced the most varied set of real bugs so far:
 
 ## Demo
 
-🎥 [https://www.loom.com/share/1adab62d29a845a589e127f2ae724622]
+🎥 [Loom walkthrough](https://www.loom.com/share/1adab62d29a845a589e127f2ae724622)
 
 ## Possible next steps
 
@@ -76,3 +80,7 @@ This project surfaced the most varied set of real bugs so far:
 ## Running cost
 
 Telegram Bot API, Google Sheets API, Gmail API: free. Gemini 2.5 Flash: free at this usage level. n8n: free if self-hosted, or from $24/month on n8n Cloud after the trial period.
+
+## Author
+
+**Khoshaba Odeesho** — [github.com/Assyrian91](https://github.com/Assyrian91)
